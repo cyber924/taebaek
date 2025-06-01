@@ -2,19 +2,16 @@
 
 import { useEffect, useState } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import { Database } from '@/types/supabase'; // Supabase 타입이 정의된 경우
 import DongCard from '@/components/dong/DongCard';
 import { Skeleton } from '@/components/ui/skeleton';
 
-type Dong = Database['public']['Tables']['taebaek_dong_heritage']['Row']; // 테이블 타입에 맞게 조정
-
 function DongList() {
-  const [dongList, setDongList] = useState<Dong[]>([]);
+  const [dongList, setDongList] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchDongList = async () => {
-      const supabase = createClientComponentClient<Database>();
+      const supabase = createClientComponentClient();
       const { data, error } = await supabase
         .from('taebaek_dong_heritage')
         .select('*');
