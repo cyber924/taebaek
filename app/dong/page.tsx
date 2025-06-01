@@ -1,13 +1,37 @@
-import { Suspense } from 'react';
-import { fetchDongList } from '@/lib/supabase';
+'use client';
+
+import { useEffect, useState } from 'react';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { Database } from '@/types/supabase'; // Supabase 타입이 정의된 경우
 import DongCard from '@/components/dong/DongCard';
 import { Skeleton } from '@/components/ui/skeleton';
 
-async function DongList() {
-  const dongList = await fetchDongList();
-  
-  console.log('Fetched dong list:', dongList); // Debug log
-  
+type Dong = Database['public']['Tables']['taebaek_dong_heritage']['Row']; // 테이블 타입에 맞게 조정
+
+function DongList() {
+  const [dongList, setDongList] = useState<Dong[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchDongList = async () => {
+      const supabase = createClientComponentClient<Database>();
+      const { data, error } = await supabase
+        .from('taebaek_dong_heritage')
+        .select('*');
+
+      if (error) {
+        console.error('Supabase fetch error:', error);
+      } else {
+        setDongList(data || []);
+      }
+      setLoading(false);
+    };
+
+    fetchDongList();
+  }, []);
+
+  if (loading) return <DongListSkeleton />;
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
       {dongList && dongList.length > 0 ? (
@@ -49,10 +73,8 @@ export default function DongPage() {
           태백시 행정동의 이름 유래와 역사적 배경을 소개합니다.
         </p>
       </div>
-      
-      <Suspense fallback={<DongListSkeleton />}>
-        <DongList />
-      </Suspense>
+
+      <DongList />
     </div>
   );
 }
