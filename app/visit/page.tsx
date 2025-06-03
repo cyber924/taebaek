@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'; // ✅ 캐시 무시
+
 import { fetchVisitList } from '@/lib/supabase';
 import VisitList from '@/components/visit/VisitList';
 
